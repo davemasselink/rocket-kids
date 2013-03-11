@@ -1,0 +1,100 @@
+<div class="well">
+    <form name="studentAddForm">
+        <h2>Student Info:</h2>
+        <div class="row-fluid">
+            <label class="span2">First Name:</label>
+            <input type="text" name="firstName" ng-model="newStudent.firstName"
+                   required>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Middle Name (optional):</label>
+            <input type="text" name="middleName" ng-model="newStudent.middleName">
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Last Name:</label>
+            <input type="text" name="lastName" ng-model="newStudent.lastName"
+                   required>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Nick Name (optional):</label>
+            <input type="text" name="nickname" ng-model="newStudent.nickname">
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Date of Birth:</label>
+            <input type="text" ui-date="dobOptions" name="dob" ng-model="newStudent.dob"
+                   required>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Place of Birth:</label>
+            <input type="text" name="birthplace" ng-model="newStudent.birthplace">
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Gender:</label>
+            <input type="radio" name="genderRadios" ng-model="newStudent.gender"
+                   value="male" required> Male
+            <input type="radio" name="genderRadios" ng-model="newStudent.gender"
+                   value="female" required> Female
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Ethnicity:</label>
+            <select ng-model="newStudent.ethnicity" required>
+                <option value="caucasian:american">Caucasian - American</option>
+                <option value="caucasian:european">Caucasian - European</option>
+                <option value="caucasian:other">Caucasian - Other</option>
+                <option value="asian:east">East Asian</option>
+                <option value="asian:south">South Asian</option>
+                <option value="african">African</option>
+                <option value="african:american">African American</option>
+                <option value="hispanic">Hispanic</option>
+            </select>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Enrollment Status:</label>
+            <select ng-model="newStudent.enrollmentStatus" required>
+                <option value="waitlist">Waitlist</option>
+                <option value="enrolled">Enrolled</option>
+                <option value="alum">Alum</option>
+                <option value="other">Any others?</option>
+            </select>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Home Address:</label>
+            <input type="text" name="homeAddr1" ng-model="newStudent.addr"
+                   required>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Home Address Cont.:</label>
+            <input type="text" name="homeAddr2" ng-model="newStudent.addrLine2">
+        </div>
+        <div class="row-fluid">
+            <label class="span2">City:</label>
+            <input type="text" name="city" ng-model="newStudent.addrCity"
+                   required>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">State:</label>
+            <input type="text" name="state" ng-model="newStudent.addrState"
+                   required>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Zip Code:</label>
+            <input type="text" name="zipCode" ng-model="newStudent.addrZipCode"
+                   required>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Name of most recent school/daycare/caregiver:</label>
+            <input type="text" name="mostRecentCare" ng-model="newStudent.mostRecentCare">
+        </div>
+        <div class="row-fluid">
+            <label class="span2">?Dates attended?:</label>
+            <input type="text" name="mostRecentCareDates" ng-model="newStudent.mostRecentCareDates">
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Start Date:</label>
+            <input type="text" ui-date="dateOptions" name="startDate" ng-model="newStudent.startDate"
+                   required>
+        </div>
+        <h2>Parent/Guardian Info:</h2>
+        <button class="btn btn-success" ng-click="addStudent(newStudent)"><i class="icon-plus"></i> Add Student</button>
+    </form>
+</div>

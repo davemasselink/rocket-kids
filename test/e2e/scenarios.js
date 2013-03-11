@@ -2,43 +2,43 @@
 
 /* http://docs.angularjs.org/guide/dev_guide.e2e-testing */
 
-describe('my app', function() {
+describe('rocketKids', function() {
 
   beforeEach(function() {
     browser().navigateTo('../../app/index.html');
   });
 
 
-  it('should automatically redirect to /view1 when location hash/fragment is empty', function() {
-    expect(browser().location().url()).toBe("/view1");
+  it('should automatically redirect to /list when location hash/fragment is empty', function() {
+    expect(browser().location().url()).toBe("/list");
   });
 
 
-  describe('view1', function() {
+  describe('list', function() {
 
     beforeEach(function() {
-      browser().navigateTo('#/view1');
+      browser().navigateTo('#/list');
     });
 
 
-    it('should render view1 when user navigates to /view1', function() {
-      expect(element('[ng-view] p:first').text()).
-        toMatch(/partial for view 1/);
+    it('should render list view when user navigates to /list', function() {
+      expect(element('[ng-view] th:first').text()).
+        toMatch(/First Name/);
     });
 
   });
 
 
-  describe('view2', function() {
+  describe('add', function() {
 
     beforeEach(function() {
-      browser().navigateTo('#/view2');
+      browser().navigateTo('#/add');
     });
 
 
-    it('should render view2 when user navigates to /view2', function() {
-      expect(element('[ng-view] p:first').text()).
-        toMatch(/partial for view 2/);
+    it('should render add view when user navigates to /add', function() {
+      expect(element('[ng-view] label:first').text()).
+        toMatch(/First Name:/);
     });
 
   });

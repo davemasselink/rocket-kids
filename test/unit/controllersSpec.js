@@ -2,28 +2,30 @@
 
 /* jasmine specs for controllers go here */
 
-describe('MyCtrl1', function(){
-  var myCtrl1;
+describe('MainCtrl', function(){
+  var mainCtrl;
+  var scope = {};
+  var Student = {query: function(){}};
 
   beforeEach(function(){
-    myCtrl1 = new MyCtrl1();
+    mainCtrl = new MainCtrl(scope, Student);
   });
 
-
-  it('should ....', function() {
-    //spec body
+  it('should have the username of Shanam', function() {
+    expect(scope.user.firstName).toBe("Shanam");
   });
 });
 
 
-describe('MyCtrl2', function(){
-  var myCtrl2;
+describe('AddCtrl', function(){
+  var addCtrl;
+  var scope = {};
+  var Student = {query: function(){}};
 
 
   beforeEach(function(){
-    myCtrl2 = new MyCtrl2();
+    addCtrl = new AddCtrl(scope, Student);
   });
-
 
   it('should ....', function() {
     //spec body

@@ -1,0 +1,18 @@
+<div class="row-fluid">
+    <label class="span2">Filter by Name:</label>
+    <input type="text" ng-model="filterName">
+</div>
+<table class="table table-striped">
+    <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Date of birth</th>
+        <th>Age (yrs)</th>
+    </tr>
+    <tr ng-repeat="student in students | filter:filterName">
+        <td>{{student.firstName}}</td>
+        <td>{{student.lastName}}</td>
+        <td>{{student.dob | date}}</td>
+        <td>{{student.ageYrs | number:1}}</td>
+    </tr>
+</table>
