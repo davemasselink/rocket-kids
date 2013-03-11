@@ -4,45 +4,35 @@
 
 
 angular.module('rocketKids.directives', []).
-  directive('appVersion', ['version', function(version) {
-    return function(scope, elm, attrs) {
-      elm.text(version);
-    };
-  }]).
-    directive('hichart', function () {
-
+    directive('appVersion', ['version', function(version) {
+        return function(scope, elm, attrs) {
+            elm.text(version);
+        };
+    }]).
+    directive('highchart', function () {
         return {
             restrict: 'E',
             transclude: true,
-            controller: ChartCtrl,
             template: '<div></div>',
 
             replace: true,
             link: function (scope, element, attrs) {
-                var chart1 = new Highcharts.Chart({
+                var chart = new Highcharts.Chart({
                     chart: {
                         renderTo: attrs.id,
-                        type: attrs.charttype,
-                        height: attrs.chartheight,
-                        animation: false
+                        type: attrs.type,
+                        height: attrs.height,
+                        width: attrs.width,
+                        marginRight: attrs.marginright,
+                        marginBottom: attrs.marginbottom
                     },
-                    xAxis: {
-                        categories: scope.chartCategories,
-                        labels: {
-                            step: scope.chartStep
-
-                        }
-                    },
-                    yAxis: {
-                        title: {
-                            text: ''
-                        }
-                    },
-                    series: [{
-                        data: scope.chartData,
-                        name: attrs.chartname
-                    }]
-
+                    title: scope.charts[attrs.id].title,
+                    subtitle: scope.charts[attrs.id].subtitle,
+                    xAxis: scope.charts[attrs.id].xAxis,
+                    yAxis: scope.charts[attrs.id].yAxis,
+                    tooltip: scope.charts[attrs.id].tooltip,
+                    legend: scope.charts[attrs.id].legend,
+                    series: scope.charts[attrs.id].series
                 });
             }
         };
