@@ -1,7 +1,14 @@
-<h2>The students home locations:</h2>
+<h2>Students' home locations:</h2>
+Limit to current students only: <input type="checkbox" ng-model="limitCurrentStudentHomeMap"><br/>
 <div id="map_canvas" ui-map="studentHomeMap" class="map"
-     ui-options="studentHomeMapOptions">
+     ui-options="mapOptions">
 </div>
-<!-- chart testing -->
-<h2>Chart Testing</h2>
-<highchart id="worldTempChart" type="spline" height="400" width="710"></highchart>
+<h2>Guardians' work locations:</h2>
+Limit to current students only: <input type="checkbox" ng-model="limitCurrentStudentWorkMap"><br/>
+<div id="map_canvas" ui-map="guardianWorkMap" class="map"
+     ui-options="mapOptions">
+</div>
+<h2>Students' gender:</h2>
+<highchart id="studentGenderChart" ng-model="studentGenderChart" type="spline" height="400" width="1024"></highchart>
+<h2>Students' ethnicity:</h2>
+<highchart id="studentEthnicityChart" ng-model="studentEthnicityChart" type="spline" height="400" width="1024"></highchart>

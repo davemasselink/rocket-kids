@@ -13,8 +13,21 @@ function MainCtrl($scope, Student) {
 }
 MainCtrl.$inject = ['$scope', 'Student'];
 
-function AddCtrl($scope, $location, Student) {
+function getAgeYrs(dob) {
+    var today = new Date();
+    var ageMs = today - new Date(dob);
+    return ageMs / (1000 * 60 * 60 * 24 * 365);
+}
+
+function AddCtrl($scope, $location, Student, Ethnicity) {
     $scope.newStudent = {};
+
+    $scope.ethnicityChoices = Ethnicity.query();
+
+    $scope.addStudent = function(newStudent){
+        Student.save(newStudent);
+        $location.path("/list")
+    };
 
     $scope.dobOptions = {
         changeYear: true,
@@ -27,97 +40,269 @@ function AddCtrl($scope, $location, Student) {
         changeMonth: true
     };
 
-    $scope.addStudent = function(newStudent){
-        Student.save(newStudent);
-        $location.path("/list")
+    $scope.datesReversedValidator = function(startDate){
+        return !($scope.newStudent.endDate < startDate);
     };
 }
-AddCtrl.$inject = ['$scope', '$location', 'Student'];
+AddCtrl.$inject = ['$scope', '$location', 'Student', 'Ethnicity'];
 
-function DataCtrl($scope, $http, Student) {
+function DataCtrl($scope, Student, Ethnicity) {
     var geocoder = new google.maps.Geocoder();
-    $scope.studentHomeMarkers = [];
-
-    $scope.studentHomeMapOptions = {
+    $scope.mapOptions = {
         center: new google.maps.LatLng(37.381821,-122.046089),
-        //https://maps.google.com/maps?q=Windsor+Preschool+Academy,+South+Mary+Avenue,+Sunnyvale,+CA&hl=en&ll=37.381821,-122.046089&spn=0.046309,0.090294&sll=37.269174,-119.306607&sspn=11.863113,23.115234&oq=windsor+preschool&hq=Windsor+Preschool+Academy,&hnear=S+Mary+Ave,+Sunnyvale,+California&t=m&z=14&iwloc=A
-        zoom: 11,
+        zoom: 10,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
-
+    //Load Student home map
+    $scope.studentHomeMarkers = [];
     Student.query(function(response){
-        angular.forEach(response,
-            function(student){
+        response.forEach(function(student){
+            if(student && student.addr && student.addrCity && student.addrState){
+                //Geocode student home addr via Google Maps
                 geocoder.geocode({'address': student.addr + ", " + student.addrCity + ", " + student.addrState},
                     function (results, status){
-                        if (status == google.maps.GeocoderStatus.OK) {
-                            $scope.studentHomeMarkers.push(new google.maps.Marker({
-                                map: $scope.studentHomeMap,
-                                position: results[0].geometry.location
-                            }));
-                        }
+                        results.forEach(function(result){
+                            addMarkerToMap(result, status, $scope.studentHomeMarkers, $scope.studentHomeMap);
+                        })
                     }
                 );
             }
-        );
+        });
     });
-    $scope.charts = {};
-    $scope.charts["worldTempChart"] = {
-        title: {
-            text: 'Monthly Average Temperature',
-            x: -20 //center
-        },
-        subtitle: {
-            text: 'Source: WorldClimate.com',
-            x: -20
-        },
-        xAxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        },
-        yAxis: {
-            title: {
-                text: 'Temperature (°C)'
-            },
-            plotLines: [{
-                value: 0,
-                width: 1,
-                color: '#808080'
-            }]
-        },
-        tooltip: {
-            formatter: function() {
-                return '<b>'+ this.series.name +'</b><br/>'+
-                    this.x +': '+ this.y +'°C';
+    //Load Guardian work map
+    $scope.guardianWorkMarkers = [];
+    Student.query(function(response){
+        response.forEach(function(student){
+            if(student && student.pg1EmployerAddr && student.pg1EmployerCity){
+                //Geocode guardian #1's addr via Google Maps
+                geocoder.geocode({'address': student.pg1EmployerAddr + ", " + student.pg1EmployerCity},
+                    function (results, status){
+                        results.forEach(function(result){
+                            addMarkerToMap(result, status, $scope.guardianWorkMarkers, $scope.guardianWorkMap);
+                        })
+                    }
+                );
             }
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'top',
-            x: -10,
-            y: 100,
-            borderWidth: 0
-        },
-        series: [{
-            name: 'Tokyo',
-            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
-        }, {
-            name: 'New York',
-            data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
-        }, {
-            name: 'Berlin',
-            data: [-0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0]
-        }, {
-            name: 'London',
-            data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
-        }]
-    };
-}
-DataCtrl.$inject = ['$scope', '$http', 'Student']
+            if(student && student.pg2EmployerAddr && student.pg2EmployerCity){
+                //Geocode guardian #2's addr via Google Maps
+                geocoder.geocode({'address': student.pg2EmployerAddr + ", " + student.pg2EmployerCity},
+                    function (results, status){
+                        results.forEach(function(result){
+                            addMarkerToMap(result, status, $scope.guardianWorkMarkers, $scope.guardianWorkMap);
+                        })
+                    }
+                );
+            }
+        });
+    });
+    //Helper function for adding markers to a map
+    function addMarkerToMap(geocodeResult, geocodeStatus, markers, renderToMap){
+        if (geocodeStatus == google.maps.GeocoderStatus.OK) {
+            markers.push(new google.maps.Marker({
+                map: renderToMap,
+                position: geocodeResult.geometry.location
+            }));
+        }
+    }
 
-function getAgeYrs(dob) {
-    var today = new Date();
-    var ageMs = today - new Date(dob);
-    return ageMs / (1000 * 60 * 60 * 24 * 365);
+    $scope.studentEthnicityChart = {};
+    $scope.studentEthnicityChartSeries = [];
+    $scope.getStudentEthnicityChartData = function(){
+        var ethnicityMonthlyCount = {};
+        //TODO: create a school or facility wide "open date" and use that as default chart start
+        var schoolStartDate;
+        var students = Student.query(function(){
+            students.forEach(function(student){
+                var startDate = new Date(student.startDate);
+                if (!schoolStartDate || (startDate < schoolStartDate)){
+                    schoolStartDate = startDate;
+                }
+            });
+            //Now loop through all the students and for each
+            students.forEach(function(student){
+                //grab some details
+                var ethnicityId = student.ethnicityId;
+                //make sure this ethnicity has been seen already
+                if(!ethnicityMonthlyCount[ethnicityId]){
+                    //and initialize the array if it hasn't
+                    ethnicityMonthlyCount[ethnicityId] = [];
+                }
+                var today = new Date();
+                var startDate = new Date(student.startDate);
+                //if there is no endDate, assume today is the endDate
+                var endDate = student.endDate ? new Date(student.endDate) : today;
+                var sampleDate = schoolStartDate;
+                var sampleDateIndex = 0;
+                var utcYear, utcMonth, utcDate;
+                //and then cycle through each month since the chartStartDate
+                while(sampleDate < today){
+                    //grab a convenient hold of UTC year, month, date
+                    utcYear = sampleDate.getUTCFullYear();
+                    utcMonth = sampleDate.getUTCMonth();
+                    utcDate = sampleDate.getUTCDate();
+                    //if this ethnicity/date combo hasn't been touched yet
+                    if(!ethnicityMonthlyCount[ethnicityId][sampleDateIndex]){
+                        //initialize the count
+                        ethnicityMonthlyCount[ethnicityId][sampleDateIndex] = [
+                            Date.UTC(utcYear, utcMonth, utcDate), 0];
+                    }
+                    //if the student was enrolled on the sample date
+                    if (startDate <= sampleDate && sampleDate < endDate){
+                        //count the student in their ethnicity group
+                        //the index of 1 points to the count (as opposed to the date)
+                        ethnicityMonthlyCount[ethnicityId][sampleDateIndex][1] += 1;
+                    }
+                    //then add a month to the sample date and iterate
+                    sampleDate = addDaysToDate(sampleDate, 365.25/12);
+                    sampleDateIndex += 1;
+                }
+            });
+        });
+        var ethnicities = Ethnicity.query(function(){
+            //Finally loop through all the ethnicities and for each create a data series
+            ethnicities.forEach(function(ethnicity){
+                var id = ethnicity._id.$oid;
+                if (ethnicityMonthlyCount[id]){
+                    $scope.studentEthnicityChartSeries.push({
+                        name: ethnicity.displayName,
+                        data: ethnicityMonthlyCount[id]
+                    });
+                }
+            });
+            $scope.studentEthnicityChart = {
+                title: {
+                    text: 'Month by Month Student Ethnicity'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                        day: '%Y-%b-%e',
+                        month: '%Y-%b'
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Number of Students'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: -10,
+                    y: 100,
+                    borderWidth: 0
+                },
+                series: $scope.studentEthnicityChartSeries
+            };
+        });
+
+    };
+    $scope.studentGenderChart = {};
+    $scope.studentGenderChartSeries = [];
+    $scope.getStudentGenderChartData = function(){
+        var genderMonthlyCount = {};
+        //TODO: create a school or facility wide "open date" and use that as default chart start
+        var schoolStartDate;
+        var students = Student.query(function(){
+            students.forEach(function(student){
+                var startDate = new Date(student.startDate);
+                if (!schoolStartDate || (startDate < schoolStartDate)){
+                    schoolStartDate = startDate;
+                }
+            });
+            //Now loop through all the students and for each
+            students.forEach(function(student){
+                //grab some details
+                var gender = student.gender;
+                //make sure this gender has been seen already
+                if(!genderMonthlyCount[gender]){
+                    //and initialize the array if it hasn't
+                    genderMonthlyCount[gender] = [];
+                }
+                var today = new Date();
+                var startDate = new Date(student.startDate);
+                //if there is no endDate, assume today is the endDate
+                var endDate = student.endDate ? new Date(student.endDate) : today;
+                var sampleDate = schoolStartDate;
+                var sampleDateIndex = 0;
+                var utcYear, utcMonth, utcDate;
+                //and then cycle through each month since the chartStartDate
+                while(sampleDate < today){
+                    //grab a convenient hold of UTC year, month, date
+                    utcYear = sampleDate.getUTCFullYear();
+                    utcMonth = sampleDate.getUTCMonth();
+                    utcDate = sampleDate.getUTCDate();
+                    //if this ethnicity/date combo hasn't been touched yet
+                    if(!genderMonthlyCount[gender][sampleDateIndex]){
+                        //initialize the count
+                        genderMonthlyCount[gender][sampleDateIndex] = [
+                            Date.UTC(utcYear, utcMonth, utcDate), 0];
+                    }
+                    //if the student was enrolled on the sample date
+                    if (startDate <= sampleDate && sampleDate < endDate){
+                        //count the student in their ethnicity group
+                        //the index of 1 points to the count (as opposed to the date)
+                        genderMonthlyCount[gender][sampleDateIndex][1] += 1;
+                    }
+                    //then add a month to the sample date and iterate
+                    sampleDate = addDaysToDate(sampleDate, 365.25/12);
+                    sampleDateIndex += 1;
+                }
+            });
+            ['male', 'female'].forEach(function(gender){
+                if (genderMonthlyCount[gender]){
+                    $scope.studentGenderChartSeries.push({
+                        name: gender,
+                        data: genderMonthlyCount[gender]
+                    });
+                }
+            });
+            $scope.studentGenderChart = {
+                title: {
+                    text: 'Month by Month Student Gender'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                        day: '%Y-%b-%e',
+                        month: '%Y-%b'
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Number of Students'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: -10,
+                    y: 100,
+                    borderWidth: 0
+                },
+                series: $scope.studentGenderChartSeries
+            };
+        });
+    };
+    function addDaysToDate(date, numDays) {
+        return new Date(date.getTime() + numDays * 24 * 60 * 60* 1000);
+    }
+    //Then generate the data
+    $scope.getStudentEthnicityChartData();
+    $scope.getStudentGenderChartData();
 }
+DataCtrl.$inject = ['$scope', 'Student', 'Ethnicity'];
