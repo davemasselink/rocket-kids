@@ -10,23 +10,40 @@
 </head>
 <body>
     <div ng-controller="MainCtrl">
-        <h1>Hello {{user.firstName}}</h1>
         <div class="navbar">
             <div class="navbar-inner">
                 <a class="brand" href="#">Rocket Kids</a>
                 <ul class="nav">
-                    <li class="active dropdown">
+                    <li class="dropdown">
                         <a class="dropdown-toggle">
-                            Students
+                            Students<b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="#/list">List</a></li>
+                            <li><a href="#/quick-add">Quick Add</a></li>
                             <li><a href="#/add">Add</a></li>
-                            <li><a href="#/data">Data</a></li>
+                            <li><a href="#/data">Data Analysis</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle">
+                            Teachers<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#/daily-comm">Daily Communication</a></li>
                         </ul>
                     </li>
                     <li><a href="#/">Facilities</a></li>
-                    <li><a href="#/">Teachers</a></li>
+                    <li class="divider-vertical"></li>
+                    <li class="dropdown">
+                        <a href="#/" class="dropdown-toggle pull-right" data-toggle="dropdown">
+                            My Account<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#/">User: {{user.firstName}}</a></li>
+                            <li><a href="#/">Logout</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>

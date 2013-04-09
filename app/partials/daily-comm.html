@@ -1,0 +1,105 @@
+<div class="container-fluid">
+    <form name="dailyCommForm">
+        <h2>Daily Communication</h2>
+        <div class="row-fluid">
+            <label class="span2">Student Name:</label>
+            <select name="student" ng-model="dailyComm.student" required>
+                <option ng-repeat="student in students | filter: {enrollmentStatus: 'enrolled'}"
+                        value="{{student._id.$oid}}">
+                    {{student.firstName}} {{student.lastName}}
+                </option>
+            </select>
+        </div>
+        <div class="row-fluid">
+            <label class="span2">Date:</label>
+            <select name="date" ng-model="dailyComm.date" required>
+                <option selected="selected" value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <!--<option value="other">Other</option>-->
+            </select>
+        </div>
+        <div class="well">
+            <h3>Lunch</h3>
+            <div class="row-fluid">
+                <label class="span2">Solids:</label>
+                <select name="lunch.solids" ng-model="dailyComm.lunch.solids"
+                        required>
+                    <option value="all">Ate all</option>
+                    <option value="most">Ate most</option>
+                    <option value="half">Ate half</option>
+                    <option value="little">Ate little</option>
+                    <option value="none">Ate none</option>
+                </select>
+            </div>
+            <div class="row-fluid">
+                <label class="span2">Liquids:</label>
+                <select name="lunch.liquids" ng-model="dailyComm.lunch.liquids"
+                        required>
+                    <option value="all">Drank all</option>
+                    <option value="most">Drank most</option>
+                    <option value="half">Drank half</option>
+                    <option value="little">Drank little</option>
+                    <option value="none">Drank none</option>
+                </select>
+            </div>
+        </div>
+        <div class="well">
+            <h3>Nap</h3>
+            <div class="row-fluid">
+                <label class="span2">Duration:</label>
+                <select name="napDuration" ng-model="dailyComm.napDurationHr"
+                        required>
+                    <option value="0">None</option>
+                    <option value="0.25">None to 30 min</option>
+                    <option value="0.75">30 min to 1 hr</option>
+                    <option value="1.25">1 hr to 1.5hr</option>
+                    <option value="1.75">1.5 hr to 2hr</option>
+                    <option value="2">more than 2hr</option>
+                </select>
+            </div>
+        </div>
+        <div class="well">
+            <h3>PM Snack</h3>
+            <div class="row-fluid">
+                <label class="span2">Solids:</label>
+                <select name="pmSnack.solids"
+                        ng-model="dailyComm.pmSnack.solids"
+                        required>
+                    <option value="all">Ate all</option>
+                    <option value="most">Ate most</option>
+                    <option value="half">Ate half</option>
+                    <option value="little">Ate little</option>
+                    <option value="none">Ate none</option>
+                </select>
+            </div>
+            <div class="row-fluid">
+                <label class="span2">Liquids:</label>
+                <select name="pmSnack.liquids"
+                        ng-model="dailyComm.pmSnack.liquids"
+                        required>
+                    <option value="all">Drank all</option>
+                    <option value="most">Drank most</option>
+                    <option value="half">Drank half</option>
+                    <option value="little">Drank little</option>
+                    <option value="none">Drank none</option>
+                </select>
+            </div>
+        </div>
+        <div class="well">
+            <h3>Optional</h3>
+            <div class="row-fluid">
+                <label class="span2">Supplies Needed:</label>
+                <input type="text" name="neededSupplies"
+                       ng-model="dailyComm.neededSupplies">
+            </div>
+            <div class="row-fluid">
+                <label class="span2">Comments/Observations:</label>
+                <textarea name="comments" ng-model="dailyComm.comments"></textarea>
+            </div>
+        </div>
+        <button class="btn btn-danger"><i class="icon-ban-circle"></i> Cancel</button>
+        <button class="btn btn-success"
+                ng-disabled="dailyCommForm.$invalid"
+                ng-click="save(dailyComm)"><i class="icon-ok"></i> Submit</button>
+    </form>
+</div>

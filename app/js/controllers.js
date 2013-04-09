@@ -2,16 +2,19 @@
 
 /* Controllers */
 
-function MainCtrl($scope, Student) {
+function MainCtrl($scope) {
     $scope.user = {firstName: "Shanam"};
+}
+MainCtrl.$inject = ['$scope'];
 
+function ListCtrl($scope, Student){
     $scope.students = Student.query(function(response){
         angular.forEach(response, function(student){
             student.ageYrs = getAgeYrs(student.dob);
         });
     });
 }
-MainCtrl.$inject = ['$scope', 'Student'];
+ListCtrl.$inject = ['$scope', 'Student'];
 
 function getAgeYrs(dob) {
     var today = new Date();
@@ -25,8 +28,17 @@ function AddCtrl($scope, $location, Student, Ethnicity) {
     $scope.ethnicityChoices = Ethnicity.query();
 
     $scope.addStudent = function(newStudent){
-        Student.save(newStudent);
-        $location.path("/list")
+        //This defaults the enrollment status to enrolled for students who are
+        //quick-added.
+        if(!newStudent.enrollmentStatus){
+            newStudent.enrollmentStatus = "enrolled";
+        }
+        //Then save the student to DB
+        Student.save(newStudent, function(){
+            //And re-direct to main page
+            $location.path("/").replace();
+            $scope.$apply();
+        });
     };
 
     $scope.dobOptions = {
@@ -306,3 +318,18 @@ function DataCtrl($scope, Student, Ethnicity) {
     $scope.getStudentGenderChartData();
 }
 DataCtrl.$inject = ['$scope', 'Student', 'Ethnicity'];
+
+function DailyCommCtrl($scope, $location, Student, DailyComm) {
+    $scope.students = Student.query(function(response){
+        angular.forEach(response, function(student){
+            student.ageYrs = getAgeYrs(student.dob);
+        });
+    });
+
+    $scope.save = function(dailyComm){
+        DailyComm.save(dailyComm, function(){
+            $location.path("/").replace();
+        });
+    };
+}
+DailyCommCtrl.$inject = ['$scope', '$location', 'Student', 'DailyComm'];
